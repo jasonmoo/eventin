@@ -31,7 +31,7 @@
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNMg_X0K2WeM1h7Gvzt29-b2ZD3c3ZHmc"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNMg_X0K2WeM1h7Gvzt29-b2ZD3c3ZHmc&libraries=geometry"></script>
 	<script>
 
 		function mitigated_event(f, t) {
@@ -41,12 +41,23 @@
 			};
 		}
 
+
 		google.maps.event.addDomListener(window, 'load', function() {
+
+			// central park
+			var central_park = new google.maps.LatLng(40.767927,-73.980047);
 
 			navigator.geolocation.getCurrentPosition(function(pos) {
 
 				var lat = pos.coords.latitude,
 					lng = pos.coords.longitude;
+
+				var dist = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(lat, lng), central_park);
+
+				if (dist > 10000) {
+					lat = central_park.lat();
+					lng = central_park.lng();
+				}
 
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {
 					center: new google.maps.LatLng(lat, lng),
