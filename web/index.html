@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>eventin</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style>
+		html { height: 100% }
+		body { height: 100%; margin: 0; padding: 0; font-family: 'Open Sans', sans-serif; }
+		#map-canvas { height: 100% }
+		#nyt_attrib {
+			position: fixed; bottom:14px; right:14px; z-index: 10;
+		}
+		#event_window {
+			position: absolute;
+			top:0; left:0; z-index: 20;
+			width:100%;
+			background: rgba(255,255,255, .9);
+		}
+		#event_window span { display:inline-block; margin:0 4px; }
+		#event_window > button {
+			position: absolute;
+			top:0px; right:0px;
+			padding: 0; margin: 8px 16px;
+			font-size:26px;
+			border: none; background: transparent;
+		}
+		#event_window blockquote { margin: 14px; font-size: 14px; }
+		#event_window .subdetails { font-size: 12px; }
+		.event { margin:20px; }
+	</style>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNMg_X0K2WeM1h7Gvzt29-b2ZD3c3ZHmc"></script>
+	<script>
+
+		function mitigated_event(f, t) {
+			return function(e) {
+				clearTimeout(f.timeout);
+				f.timeout = setTimeout(function() { f(e); }, t);
+			};
+		}
+
+		google.maps.event.addDomListener(window, 'load', function() {
+
+			navigator.geolocation.getCurrentPosition(function(pos) {
+
+				var lat = pos.coords.latitude,
+					lng = pos.coords.longitude;
+
+				var map = new google.maps.Map(document.getElementById("map-canvas"), {
+					center: new google.maps.LatLng(lat, lng),
+					zoom: 16
+				});
+
+				google.maps.event.addListener(map, 'click', function(event) {
+					$("#event_window").remove();
+				});
+
+				var markers = [];
+
+				google.maps.event.addListener(map, 'bounds_changed', mitigated_event(function() {
+
+					var pos = map.getCenter(),
+						lat = pos.lat(),
+						lng = pos.lng();
+
+					$.getJSON("/search", {"lat":lat, "lng":lng}, function(data, status) {
+
+						// console.log(status, data);
+
+						markers = markers.filter(function(m) {
+							m.setMap(null);
+						});
+
+						data.results.map(function(ev) {
+
+							var marker = new google.maps.Marker({
+								position: new google.maps.LatLng(ev.geocode_latitude, ev.geocode_longitude),
+								map: map,
+								title: ev.event_name
+							});
+
+							google.maps.event.addListener(marker, 'click', function() {
+								$("#event_window").remove();
+								var div = document.createElement("div");
+								div.id = "event_window";
+								div.innerHTML = ev.html;
+								$("button", div).click(function(e) { $("#event_window").remove(); })
+								document.body.appendChild(div);
+							});
+
+							markers.push(marker);
+						});
+
+					});
+
+				}, 200));
+
+			},function(e) {
+				console.log("error?", e);
+			}, true);
+
+		});
+	</script>
+</head>
+<body>
+	<a href="http://developer.nytimes.com" id="nyt_attrib" target="_blank">
+		<img src="http://graphics8.nytimes.com/packages/images/developer/logos/poweredby_nytimes_65b.png" alt="NYT API" />
+	</a>
+	<div id="map-canvas">Loading...</div>
+</body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3011328-9', 'auto');
+  ga('send', 'pageview');
+</script>
+</html>
