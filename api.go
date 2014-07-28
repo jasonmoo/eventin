@@ -80,6 +80,7 @@ func Fetch(lat, lng string) (*Response, error, time.Duration) {
 		"ll":      {lat + "," + lng},
 		"radius":  {"1000"}, // meters
 		"sort":    {"dist asc"},
+		"limit":   {"100"},
 	}
 
 	apiurl := Endpoint + "?" + search.Encode()
