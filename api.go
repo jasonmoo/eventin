@@ -116,7 +116,7 @@ func Fetch(lat, lng string) (*Response, error, time.Duration) {
 		}
 
 		address := url.QueryEscape(event.StreetAddress + ", " + event.Borough + " " + event.State)
-		r.Results[i].MapURL = fmt.Sprintf("https://maps.google.com/maps?saddr=Current%20Location&daddr=%s", address)
+		r.Results[i].MapURL = fmt.Sprintf("https://maps.google.com/maps?saddr=Current+Location&daddr=%s", address)
 
 		// populate html
 		buf := new(bytes.Buffer)
