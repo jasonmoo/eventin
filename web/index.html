@@ -41,7 +41,6 @@
 			};
 		}
 
-
 		google.maps.event.addDomListener(window, 'load', function() {
 
 			// central park
@@ -68,7 +67,7 @@
 					$("#event_window").remove();
 				});
 
-				var markers = [];
+				var markers = {};
 
 				google.maps.event.addListener(map, 'bounds_changed', mitigated_event(function() {
 
@@ -78,13 +77,16 @@
 
 					$.getJSON("/search", {"lat":lat, "lng":lng}, function(data, status) {
 
-						// console.log(status, data);
-
-						markers = markers.filter(function(m) {
-							m.setMap(null);
-						});
+						var new_markers = {};
 
 						data.results.map(function(ev) {
+
+							var key = ev.geocode_latitude+":"+ev.geocode_longitude;
+
+							if (key in markers) {
+								new_markers[key] = markers[key];
+								return
+							}
 
 							var marker = new google.maps.Marker({
 								position: new google.maps.LatLng(ev.geocode_latitude, ev.geocode_longitude),
@@ -101,8 +103,17 @@
 								document.body.appendChild(div);
 							});
 
-							markers.push(marker);
+							new_markers[key] = marker;
+
 						});
+
+						for (var key in markers) {
+							if (!(key in new_markers)) {
+								markers[key].setMap(null);
+							}
+						}
+
+						markers = new_markers;
 
 					});
 
