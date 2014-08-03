@@ -46,17 +46,17 @@
 			// central park
 			var central_park = new google.maps.LatLng(40.767927,-73.980047);
 
-			// navigator.geolocation.getCurrentPosition(function(pos) {
+			navigator.geolocation.getCurrentPosition(function(pos) {
 
-			// 	var lat = pos.coords.latitude,
-			// 		lng = pos.coords.longitude;
+				var lat = pos.coords.latitude,
+					lng = pos.coords.longitude;
 
-			// 	var dist = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(lat, lng), central_park);
+				var dist = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(lat, lng), central_park);
 
-			// 	if (dist > 10000) {
+				if (dist > 10000) {
 					lat = central_park.lat();
 					lng = central_park.lng();
-				// }
+				}
 
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {
 					center: new google.maps.LatLng(lat, lng),
@@ -122,9 +122,9 @@
 
 				}, 200));
 
-			// },function(e) {
-			// 	console.log("error?", e);
-			// }, true);
+			},function(e) {
+				console.log("error?", e);
+			}, true);
 
 		});
 	</script>
