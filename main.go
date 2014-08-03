@@ -39,6 +39,7 @@ func main() {
 
 	go func() {
 		for {
+			start := time.Now()
 			err := ec.RefreshData()
 			if err != nil {
 				log.Println(err)
@@ -47,6 +48,7 @@ func main() {
 				continue
 			}
 			ec.WriteCache(*cachefile)
+			log.Println("Cache updated in", time.Since(start).String())
 			time.Sleep(time.Hour)
 		}
 	}()
