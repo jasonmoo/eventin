@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 )
 
@@ -15,6 +16,10 @@ var (
 
 	dev = flag.Bool("dev", false, "output dev signals")
 )
+
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 
 func main() {
 
@@ -37,11 +42,17 @@ func EventSearchHandler(w http.ResponseWriter, req *http.Request) {
 		lng = strings.TrimSpace(req.FormValue("lng"))
 	)
 
+	if len(lat) == 0 || len(lng) == 0 {
+		http.Error(w, "lat and lng required", http.StatusBadRequest)
+		return
+	}
+
 	r, err, total_time := Fetch(lat, lng)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
 		return
 	}
+
 	w.Header().Set("X-NYTAPI-Response-Time", total_time.String())
 
 	json.NewEncoder(w).Encode(r)
