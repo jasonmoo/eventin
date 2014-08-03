@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -67,6 +68,8 @@ type (
 
 		Lat float64 `json:"lat"`
 		Lng float64 `json:"lng"`
+
+		JSON []byte `json:"-"`
 	}
 )
 
@@ -88,25 +91,26 @@ var (
 	ApiKey = os.Getenv("NYT_API_KEY")
 )
 
-func (ec *EventCache) GetResponse(swlat, swlng, nelat, nelng float64) *Response {
+func (ec *EventCache) WriteResponse(w http.ResponseWriter, swlat, swlng, nelat, nelng float64) {
 
 	ec.mu.RLock()
 	defer ec.mu.RUnlock()
 
-	r := &Response{
-		Copyright: ec.Copyright,
-		Results:   make([]*Event, 0),
-	}
+	buf := bufio.NewWriter(w)
+	fmt.Fprintf(buf, `{"copyright":%q,"results":[`, ec.Copyright)
 
+	var written bool
 	for _, event := range ec.Events {
 		if event.Lat > swlat && event.Lat < nelat && event.Lng > swlng && event.Lng < nelng {
-			r.Results = append(r.Results, event)
+			if written {
+				buf.WriteByte(',')
+			}
+			buf.Write(event.JSON)
+			written = true
 		}
 	}
-
-	r.NumResults = len(r.Results)
-
-	return r
+	buf.WriteString("]}")
+	buf.Flush()
 
 }
 
@@ -122,6 +126,10 @@ func LoadCache(cachefile string) (*EventCache, error) {
 	err = json.NewDecoder(file).Decode(ec)
 	if err != nil {
 		return nil, err
+	}
+
+	for i, event := range ec.Events {
+		ec.Events[i].JSON, _ = json.Marshal(event)
 	}
 
 	return ec, nil
@@ -185,6 +193,8 @@ func (ec *EventCache) RefreshData() error {
 		} else {
 			events[i].HTML = buf.String()
 		}
+
+		events[i].JSON, _ = json.Marshal(events[i])
 
 	}
 

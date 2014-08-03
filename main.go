@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -79,10 +78,6 @@ func EventSearchHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(ec.GetResponse(swlat, swlng, nelat, nelng))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	ec.WriteResponse(w, swlat, swlng, nelat, nelng)
 
 }
