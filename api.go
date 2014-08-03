@@ -139,6 +139,9 @@ func (ec *EventCache) RefreshData() error {
 	}
 
 	for _, event := range r.Results {
+		if event.GeocodeLatitude == "" || event.GeocodeLongitude == "" {
+			continue
+		}
 		events = append(events, event)
 	}
 
@@ -148,9 +151,16 @@ func (ec *EventCache) RefreshData() error {
 			return err
 		}
 		for _, event := range result.Results {
+			if event.GeocodeLatitude == "" || event.GeocodeLongitude == "" {
+				continue
+			}
 			events = append(events, event)
 		}
 		time.Sleep(time.Second) // rate limit ouseves
+	}
+
+	if *dev {
+		log.Println("finished caching")
 	}
 
 	for i, _ := range events {
