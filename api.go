@@ -72,7 +72,7 @@ type (
 
 const (
 	Endpoint = "http://api.nytimes.com/svc/events/v2/listings.json"
-	MaxRange = (1 << 32) - 1
+	MaxRange = (1 << 31) - 1
 )
 
 var (
