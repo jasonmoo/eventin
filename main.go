@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -28,7 +27,7 @@ func init() {
 
 func main() {
 
-	fmt.Println("eventing starting up")
+	log.Println("eventing starting up")
 
 	flag.Parse()
 
