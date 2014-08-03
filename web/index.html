@@ -46,17 +46,17 @@
 			// central park
 			var central_park = new google.maps.LatLng(40.767927,-73.980047);
 
-			navigator.geolocation.getCurrentPosition(function(pos) {
+			// navigator.geolocation.getCurrentPosition(function(pos) {
 
-				var lat = pos.coords.latitude,
-					lng = pos.coords.longitude;
+			// 	var lat = pos.coords.latitude,
+			// 		lng = pos.coords.longitude;
 
-				var dist = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(lat, lng), central_park);
+			// 	var dist = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(lat, lng), central_park);
 
-				if (dist > 10000) {
+			// 	if (dist > 10000) {
 					lat = central_park.lat();
 					lng = central_park.lng();
-				}
+				// }
 
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {
 					center: new google.maps.LatLng(lat, lng),
@@ -71,11 +71,14 @@
 
 				google.maps.event.addListener(map, 'bounds_changed', mitigated_event(function() {
 
-					var pos = map.getCenter(),
-						lat = pos.lat(),
-						lng = pos.lng();
+					var bounds = map.getBounds();
 
-					$.getJSON("/search", {"lat":lat, "lng":lng}, function(data, status) {
+					$.getJSON("/search", {
+						"swlat": bounds.getSouthWest().lat(),
+						"swlng": bounds.getSouthWest().lng(),
+						"nelat": bounds.getNorthEast().lat(),
+						"nelng": bounds.getNorthEast().lng()
+					}, function(data, status) {
 
 						var new_markers = {};
 
@@ -119,9 +122,9 @@
 
 				}, 200));
 
-			},function(e) {
-				console.log("error?", e);
-			}, true);
+			// },function(e) {
+			// 	console.log("error?", e);
+			// }, true);
 
 		});
 	</script>
