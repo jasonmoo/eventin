@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -62,17 +61,10 @@ func EventSearchHandler(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 
-	var (
-		swlat_string = strings.TrimSpace(req.FormValue("swlat"))
-		swlng_string = strings.TrimSpace(req.FormValue("swlng"))
-		nelat_string = strings.TrimSpace(req.FormValue("nelat"))
-		nelng_string = strings.TrimSpace(req.FormValue("nelng"))
-	)
-
-	swlat, _ := strconv.ParseFloat(swlat_string, 64)
-	swlng, _ := strconv.ParseFloat(swlng_string, 64)
-	nelat, _ := strconv.ParseFloat(nelat_string, 64)
-	nelng, _ := strconv.ParseFloat(nelng_string, 64)
+	swlat, _ := strconv.ParseFloat(req.FormValue("swlat"), 64)
+	swlng, _ := strconv.ParseFloat(req.FormValue("swlng"), 64)
+	nelat, _ := strconv.ParseFloat(req.FormValue("nelat"), 64)
+	nelng, _ := strconv.ParseFloat(req.FormValue("nelng"), 64)
 
 	if swlat == 0 || swlng == 0 || nelat == 0 || nelng == 0 {
 		http.Error(w, "swlat, swlng, nelat and nelng required", http.StatusBadRequest)
